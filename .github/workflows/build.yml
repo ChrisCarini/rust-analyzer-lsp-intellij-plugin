@@ -1,0 +1,204 @@
+# GitHub Actions Workflow created for testing and preparing the plugin release in following steps:
+# - validate Gradle Wrapper,
+# - run test and verifyPlugin tasks,
+# - run buildPlugin task and prepare artifact for the further tests,
+# - run IntelliJ Plugin Verifier,
+# - create a release.
+#
+# Workflow is triggered on push and pull_request events.
+#
+# Docs:
+# - GitHub Actions: https://help.github.com/en/actions
+# - IntelliJ Plugin Verifier GitHub Action: https://github.com/ChrisCarini/intellij-platform-plugin-verifier-action
+#
+
+name: Build
+on:
+  # Trigger the workflow on pushes to only the 'main' branch (this avoids duplicate checks being run e.g. for dependabot pull requests)
+  push:
+    branches: [ main ]
+
+  # Trigger the workflow on any pull request
+  pull_request:
+
+jobs:
+  files-changed:
+    uses: ./.github/workflows/files-changed.yaml
+
+  # Run Gradle Wrapper Validation Action to verify the wrapper's checksum
+  gradleValidation:
+    name: Gradle Wrapper
+    runs-on: ubuntu-latest
+    steps:
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        timeout-minutes: 1
+
+      # Validate wrapper
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
+
+  # Run verifyPlugin and test Gradle tasks
+  test:
+    name: Test
+    needs: [ gradleValidation, files-changed ]
+    # If there are no changes in the changelog or there are changes in more than just the changelog, we want to run this job.
+    if: needs.files-changed.outputs.SKIP_CI == 'false'
+    runs-on: ubuntu-latest
+    steps:
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        timeout-minutes: 1
+
+      # Setup Java environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        timeout-minutes: 5
+        with:
+          distribution: zulu
+          java-version: 21
+          cache: gradle
+
+      # Set environment variables
+      - name: Export Properties
+        id: properties
+        shell: bash
+        run: |
+          PROPERTIES="$(./gradlew properties --console=plain -q)"
+          IDE_VERSIONS="$(echo "$PROPERTIES" | grep "^pluginVerifierIdeVersions:" | base64)"
+
+          echo "ideVersions=$IDE_VERSIONS" >> $GITHUB_OUTPUT
+          echo "pluginVerifierHomeDir=~/.pluginVerifier" >> $GITHUB_OUTPUT
+
+      # Cache Plugin Verifier IDEs
+      - name: Setup Plugin Verifier IDEs Cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
+          key: ${{ runner.os }}-plugin-verifier-${{ steps.properties.outputs.ideVersions }}
+
+      ### TODO (ChrisCarini) - Disabling this in the GH action; when running we see the below error message:
+      ###   STDERR: Could not read script '/data/project/jetbrainsCredentials.gradle' as it does not exist
+      ## Run Qodana inspections
+      #- name: Qodana - Code Inspection
+      #  uses: JetBrains/qodana-action@v2.1-eap
+
+      # Run tests
+      - name: Run Tests
+        run: ./gradlew test
+
+      # Run verifyPlugin Gradle task
+      - name: Verify Plugin
+        run: ./gradlew verifyPlugin
+
+      # Run IntelliJ Plugin Verifier action using GitHub Action
+      - name: Run Plugin Verifier
+        run: ./gradlew verifyPlugin -Pplugin.verifier.home.dir=${{ steps.properties.outputs.pluginVerifierHomeDir }}
+
+  # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
+  # Requires test job to be passed
+  build:
+    name: Build
+    needs: [ test, files-changed ]
+    # If there are no changes in the changelog or there are changes in more than just the changelog, we want to run this job.
+    if: needs.files-changed.outputs.SKIP_CI == 'false'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.properties.outputs.version }}
+      changelog: ${{ steps.properties.outputs.changelog }}
+    steps:
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        timeout-minutes: 1
+
+      # Setup Java environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        timeout-minutes: 5
+        with:
+          distribution: zulu
+          java-version: 21
+          cache: gradle
+
+      # Set environment variables
+      - name: Export Properties
+        id: properties
+        shell: bash
+        run: |
+          PROPERTIES="$(./gradlew properties --console=plain -q)"
+          VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
+          NAME="$(echo "$PROPERTIES" | grep "^pluginName:" | cut -f2- -d ' ')"
+          CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --no-empty-sections --no-links --console=plain -q)"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # Build artifact using buildPlugin Gradle task
+      - name: Build Plugin
+        run: ./gradlew buildPlugin
+
+      # Store built plugin as an artifact for downloading
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: "${{ steps.properties.outputs.name }} - ${{ steps.properties.outputs.version }}"
+          path: ./build/distributions/*
+
+  # Prepare a release for GitHub Releases page
+  # Once (automatically) published, release workflow will be triggered
+  release:
+    name: Release
+    # If the event is *not* a PR, and there are no changes in the changelog or there are changes in more than just the changelog, we want to run this job.
+    if: github.event_name != 'pull_request' && needs.files-changed.outputs.SKIP_CI == 'false'
+    needs: [ build, files-changed ]
+    runs-on: ubuntu-latest
+    steps:
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        timeout-minutes: 1
+
+      # Remove old release drafts by using the curl request for the available releases with draft flag
+      - name: Remove Old Release Drafts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/{owner}/{repo}/releases \
+            --jq '.[] | select(.draft == true) | .id' \
+            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
+
+      # Get latest release version
+      - name: Get latest release version
+        id: properties
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="$(gh api repos/{owner}/{repo}/releases --jq 'select(.[].draft == false) | first | .tag_name' | uniq | sed 's/v\(.*\)/\1/')"
+          echo "latest_release_version=$VERSION" | tee -a $GITHUB_OUTPUT
+
+      # Create new release
+      - name: Create & Publish Release
+        # If the currently released (to GitHub) version differs from the current version that was just built, create and publish a new release
+        if: steps.properties.outputs.latest_release_version != needs.build.outputs.version
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN_FOR_IJ_UPDATE_ACTION }}
+        run: |
+          echo "Latest Released Version: [${{ steps.properties.outputs.latest_release_version }}] != Current Build Version: [${{ needs.build.outputs.version }}]"
+          gh release create v${{ needs.build.outputs.version }} \
+            --title "v${{ needs.build.outputs.version }}" \
+            --notes "$(cat << 'EOM'
+          ${{ needs.build.outputs.changelog }}
+          EOM
+          )"

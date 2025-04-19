@@ -1,0 +1,24 @@
+<idea-plugin>
+  <id>com.chriscarini.jetbrains.rust-analyzer-lsp-intellij-plugin</id>
+
+  <name>rust-analyzer LSP</name>
+
+  <vendor email="jetbrains@chriscarini.com" url="https://jetbrains.chriscarini.com">Chris Carini</vendor>
+
+  <description><![CDATA[
+    rust-analyzer LSP-based plugin for IntelliJ-based IDEs.
+  ]]></description>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.ultimate</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+
+    <platform.lsp.serverSupportProvider
+        implementation="com.chriscarini.jetbrains.rustanalyzerlspintellijplugin.RustAnalyzerLspServerSupportProvider"/>
+
+    <pluginReplacement
+        implementation="com.chriscarini.jetbrains.rustanalyzerlspintellijplugin.RustAnalyzerLspPluginReplacement"/>
+
+  </extensions>
+</idea-plugin>

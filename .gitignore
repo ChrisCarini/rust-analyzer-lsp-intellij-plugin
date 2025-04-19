@@ -1,0 +1,17 @@
+*.iml
+*.ipr
+*.iws
+.gradle/
+.qodana/
+.shelf/
+build/
+gradle/
+out/
+gradlew*
+jetbrainsCredentials.gradle
+private.pem
+chain.crt
+*.DS_Store
+.idea/
+.installedPlugins/
+.intellijPlatform/

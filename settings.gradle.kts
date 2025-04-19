@@ -1,0 +1,1 @@
+rootProject.name = "rust-analyzer-lsp-intellij-plugin"
