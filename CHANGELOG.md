@@ -7,7 +7,6 @@
 ### Added
 
 ### Changed
-- Upgrading IntelliJ from 2025.1.4.1 to 2025.2
 
 ### Deprecated
 
@@ -16,6 +15,12 @@
 ### Fixed
 
 ### Security
+
+## [0.1.0] - 2025-08-05
+
+### Changed
+
+- Upgrading IntelliJ from 2025.1.4.1 to 2025.2
 
 ## [0.0.2] - 2025-07-06
 
@@ -34,6 +39,7 @@
 
 - Upgrading IntelliJ from 2025.1.2 to 2025.1.3
 
-[Unreleased]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.0.2...v0.1.0
 [0.0.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/commits/v0.0.3
 [0.0.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.0.3...v0.0.2
