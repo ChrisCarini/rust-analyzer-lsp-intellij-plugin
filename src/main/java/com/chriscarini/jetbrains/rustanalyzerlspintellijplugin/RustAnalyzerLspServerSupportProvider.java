@@ -54,8 +54,9 @@ class RustAnalyzerLspServerSupportProvider implements LspServerSupportProvider {
       return false;
     }
 
-    boolean jbRustPluginEnabled = jbRustPlugin.isEnabled();
+    boolean jbRustPluginLoaded = PluginManagerCore.isLoaded(jbRustPlugin.getPluginId());
+    boolean jbRustPluginEnabled = !PluginManagerCore.isDisabled(jbRustPlugin.getPluginId());
 
-    return jbRustPluginInstalled && jbRustPluginEnabled;
+    return jbRustPluginInstalled && jbRustPluginLoaded && jbRustPluginEnabled;
   }
 }
