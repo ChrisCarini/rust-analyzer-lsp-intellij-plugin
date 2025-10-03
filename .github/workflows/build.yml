@@ -21,29 +21,20 @@ on:
   # Trigger the workflow on any pull request
   pull_request:
 
+# The concurrency group is configured to run the workflow on the latest iteration of a PR
+# (and cancel workflows for older iterations).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}-${{ github.base_ref }}
+  cancel-in-progress: true
+
 jobs:
   files-changed:
     uses: ./.github/workflows/files-changed.yaml
 
-  # Run Gradle Wrapper Validation Action to verify the wrapper's checksum
-  gradleValidation:
-    name: Gradle Wrapper
-    runs-on: ubuntu-latest
-    steps:
-
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        timeout-minutes: 1
-
-      # Validate wrapper
-      - name: Gradle Wrapper Validation
-        uses: gradle/actions/wrapper-validation@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
-
   # Run verifyPlugin and test Gradle tasks
   test:
     name: Test
-    needs: [ gradleValidation, files-changed ]
+    needs: [ files-changed ]
     # If there are no changes in the changelog or there are changes in more than just the changelog, we want to run this job.
     if: needs.files-changed.outputs.SKIP_CI == 'false'
     runs-on: ubuntu-latest
@@ -61,25 +52,12 @@ jobs:
         with:
           distribution: zulu
           java-version: 21
-          cache: gradle
 
-      # Set environment variables
-      - name: Export Properties
-        id: properties
-        shell: bash
-        run: |
-          PROPERTIES="$(./gradlew properties --console=plain -q)"
-          IDE_VERSIONS="$(echo "$PROPERTIES" | grep "^pluginVerifierIdeVersions:" | base64)"
-
-          echo "ideVersions=$IDE_VERSIONS" >> $GITHUB_OUTPUT
-          echo "pluginVerifierHomeDir=~/.pluginVerifier" >> $GITHUB_OUTPUT
-
-      # Cache Plugin Verifier IDEs
-      - name: Setup Plugin Verifier IDEs Cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      # Setup Gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
         with:
-          path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
-          key: ${{ runner.os }}-plugin-verifier-${{ steps.properties.outputs.ideVersions }}
+          validate-wrappers: true  # default value, defining for explicitness - a whole separate job used to exist for wrapper validation in this workflow file. Nice!
 
       ### TODO (ChrisCarini) - Disabling this in the GH action; when running we see the below error message:
       ###   STDERR: Could not read script '/data/project/jetbrainsCredentials.gradle' as it does not exist
@@ -89,15 +67,7 @@ jobs:
 
       # Run tests
       - name: Run Tests
-        run: ./gradlew test
-
-      # Run verifyPlugin Gradle task
-      - name: Verify Plugin
-        run: ./gradlew verifyPlugin
-
-      # Run IntelliJ Plugin Verifier action using GitHub Action
-      - name: Run Plugin Verifier
-        run: ./gradlew verifyPlugin -Pplugin.verifier.home.dir=${{ steps.properties.outputs.pluginVerifierHomeDir }}
+        run: ./gradlew check
 
   # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
   # Requires test job to be passed
@@ -124,7 +94,13 @@ jobs:
         with:
           distribution: zulu
           java-version: 21
-          cache: gradle
+
+      # Setup Gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+        with:
+          validate-wrappers: false  # turn validation off; we validated as part of the `test` job.
+          cache-read-only: true     # use the cache written from the `test` job, but do not write back after 'this' job.
 
       # Set environment variables
       - name: Export Properties
@@ -136,16 +112,20 @@ jobs:
           NAME="$(echo "$PROPERTIES" | grep "^pluginName:" | cut -f2- -d ' ')"
           CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --no-empty-sections --no-links --console=plain -q)"
 
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" | tee -a $GITHUB_OUTPUT
+          echo "name=$NAME" | tee -a $GITHUB_OUTPUT
           
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" | tee -a $GITHUB_OUTPUT
+          echo "$CHANGELOG" | tee -a $GITHUB_OUTPUT
+          echo "EOF" | tee -a $GITHUB_OUTPUT
 
       # Build artifact using buildPlugin Gradle task
       - name: Build Plugin
         run: ./gradlew buildPlugin
+
+      # Run verifyPlugin Gradle task
+      - name: Verify Plugin
+        run: ./gradlew verifyPlugin
 
       # Store built plugin as an artifact for downloading
       - name: Upload artifacts

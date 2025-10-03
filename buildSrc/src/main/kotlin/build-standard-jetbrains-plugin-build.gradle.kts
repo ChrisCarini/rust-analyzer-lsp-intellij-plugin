@@ -60,10 +60,18 @@ dependencies {
     intellijPlatform {
         val isSnapshot = platformVersion.endsWith("-SNAPSHOT")
         create(
-            type = IntelliJPlatformType.fromCode(platformType),
+            // Specify both `platformType` and `platformVersion` to correctly "distinguish between IntelliJ IDEA and
+            // IntelliJ IDEA Ultimate when parsing IU code". This can likely be removed after all plugins updated to
+            // 2025.3.* RELEASE. See below commit & method impl for details:
+            // - https://github.com/JetBrains/intellij-platform-gradle-plugin/commit/79f8625f6411ca9cacb3b7db32cbcde7a159e1ad
+            // - https://github.com/JetBrains/intellij-platform-gradle-plugin/blob/4abe312ff252b9f013451d82844ef4cc9dcc0807/src/main/kotlin/org/jetbrains/intellij/platform/gradle/IntelliJPlatformType.kt#L151-L197
+            type = IntelliJPlatformType.fromCode(platformType, platformVersion),
             version = platformVersion,
+        ) {
+            // `useInstaller` needs to be set to 'false' (aka, `isSnapshot` = 'true') to resolve EAP releases.
             useInstaller = !isSnapshot
-        )
+            useCache = true
+        }
 
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(platformPlugins.map { it.split(',') })
@@ -80,7 +88,7 @@ dependencies {
         testFramework(TestFrameworkType.Platform)
     }
 
-    testImplementation(group = "junit", name = "junit", version = "4.13.2")
+    testImplementation("junit:junit:4.13.2")
     testImplementation("org.testng:testng:7.10.2")
     testImplementation("org.mockito:mockito-core:5.12.0")
 }
@@ -217,7 +225,17 @@ intellijPlatform {
         failureLevel.set(failureLevels)
         ides {
             logger.lifecycle("Verifying against IntelliJ Platform $platformType $platformVersion")
-            ide(IntelliJPlatformType.fromCode(platformType), platformVersion)
+            create(
+                // Specify both `platformType` and `platformVersion` to correctly "distinguish between IntelliJ IDEA and
+                // IntelliJ IDEA Ultimate when parsing IU code". This can likely be removed after all plugins updated to
+                // 2025.3.* RELEASE. See below commit & method impl for details:
+                // - https://github.com/JetBrains/intellij-platform-gradle-plugin/commit/79f8625f6411ca9cacb3b7db32cbcde7a159e1ad
+                // - https://github.com/JetBrains/intellij-platform-gradle-plugin/blob/4abe312ff252b9f013451d82844ef4cc9dcc0807/src/main/kotlin/org/jetbrains/intellij/platform/gradle/IntelliJPlatformType.kt#L151-L197
+                type = IntelliJPlatformType.fromCode(platformType, platformVersion),
+                version = platformVersion,
+            ) {
+                useCache = true
+            }
 
             recommended()
         }
@@ -279,7 +297,7 @@ tasks {
     }
 
     // Task to generate the necessary format for `ChrisCarini/intellij-platform-plugin-verifier-action` GitHub Action.
-    register("generateIdeVersionsList") {
+    register<DefaultTask>("generateIdeVersionsList") {
         dependsOn(project.tasks.named(listProductReleasesTaskName))
         doLast {
             val ideVersionsList = mutableListOf<String>()
@@ -290,8 +308,16 @@ tasks {
             }
 
             // Include the versions specified in `gradle.properties` `pluginVerifierIdeVersions` property.
+            val environment: String = environment("GITHUB_EVENT_NAME").getOrElse("__")
             pluginVerifierIdeVersions.split(",").map { it.trim() }.forEach { version ->
-                listOf("IC", "IU").forEach { type ->
+                // Only add 'LATEST-EAP-SNAPSHOT' during scheduled runs.
+                if ("LATEST-EAP-SNAPSHOT".equals(version) && !"schedule".equals(environment)) {
+                    return@forEach
+                }
+
+                // Note: Used to test against both IC & IU, but now defaulting to just whatever is specified
+                // by `platformType` in the `gradle.properties` file.
+                listOf(platformType).forEach { type ->
                     ideVersionsList.add("idea$type:$version")
                 }
             }
