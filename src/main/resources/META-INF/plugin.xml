@@ -14,6 +14,9 @@
 
   <extensions defaultExtensionNs="com.intellij">
 
+    <notificationGroup id="rust-analyzer LSP"
+        displayType="BALLOON"/>
+
     <applicationService
         serviceImplementation="com.chriscarini.jetbrains.rustanalyzerlspintellijplugin.RustAnalyzerSettings"/>
 
