@@ -41,7 +41,8 @@ class RustAnalyzerLspServerSupportProvider implements LspServerSupportProvider {
     @NotNull
     @Override
     public GeneralCommandLine createCommandLine() {
-      return new GeneralCommandLine("/opt/homebrew/bin/rust-analyzer");
+      String rustAnalyzerPath = RustAnalyzerSettings.getInstance().getRustAnalyzerPath();
+      return new GeneralCommandLine(rustAnalyzerPath);
     }
   }
 
