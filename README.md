@@ -9,9 +9,43 @@
 A plugin for JetBrains IntelliJ IDE providing a `rust-analyzer` LSP. This plugin is currently a PoC-only, and was initially created to explore IntelliJ's LSP support. It is not intended for production use. Feel free to open a GitHub issue if you'd like to see this plugin developed further.
 <!-- Plugin description end -->
 
-This plugin expects that [`rust-analyzer`, the implementation of LSP for Rust](https://rust-analyzer.github.io/), is installed to `/opt/homebrew/bin/rust-analyzer` (e.g. brew installed)
+## Fork Changes (v0.2.3)
 
-Tested in IntelliJ.
+This fork adds **cross-platform support** with configurable rust-analyzer path.
+
+### New Features
+
+- **Configurable Path**: Settings → Tools → rust-analyzer LSP
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Real-time Validation**: Path status indicator (green/red)
+- **Auto-detect**: Automatically finds rust-analyzer in system PATH
+- **Notification**: Shows warning with "Configure Settings" button when path is invalid
+- **Auto-restart**: LSP server restarts automatically after settings change
+- **Help Text**: Commands for finding rust-analyzer path on different terminals
+
+### How to Find rust-analyzer Path
+
+| Terminal | Command |
+|----------|---------|
+| Windows CMD | `where rust-analyzer` |
+| Windows PowerShell | `(Get-Command rust-analyzer).Source` |
+| macOS/Linux | `which rust-analyzer` |
+
+### Install rust-analyzer
+
+```bash
+# Via rustup (recommended)
+rustup component add rust-analyzer
+
+# Or download from GitHub releases
+# https://github.com/rust-lang/rust-analyzer/releases
+```
+
+## Original Description
+
+This plugin expects that [`rust-analyzer`, the implementation of LSP for Rust](https://rust-analyzer.github.io/), is installed and available in your system PATH, or configured via Settings → Tools → rust-analyzer LSP.
+
+Tested in IntelliJ and Rider.
 
 ## Contributors
 
