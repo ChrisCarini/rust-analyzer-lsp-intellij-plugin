@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 
 
+@SuppressWarnings("deprecation")
 class RustAnalyzerLspServerSupportProvider implements LspServerSupportProvider {
 
   public static final String RUST_EXTENSION = "rs";
