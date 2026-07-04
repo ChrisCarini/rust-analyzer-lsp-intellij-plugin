@@ -7,26 +7,25 @@ import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.platform.lsp.api.LspServerSupportProvider;
-import com.intellij.platform.lsp.api.ProjectWideLspServerDescriptor;
+import com.intellij.platform.lsp.api.LspIntegrationProvider;
+import com.intellij.platform.lsp.api.ProjectWideLspClientDescriptor;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 
 
-@SuppressWarnings("deprecation")
-class RustAnalyzerLspServerSupportProvider implements LspServerSupportProvider {
+class RustAnalyzerLspServerSupportProvider implements LspIntegrationProvider {
 
   public static final String RUST_EXTENSION = "rs";
 
   @Override
   public void fileOpened(@NotNull Project project, @NotNull VirtualFile virtualFile,
-      @NotNull LspServerSupportProvider.LspServerStarter lspServerStarter) {
+      @NotNull LspIntegrationProvider.LspClientStarter clientStarter) {
     if (!isJBRustPluginEnabled() && Objects.equals(virtualFile.getExtension(), RUST_EXTENSION)) {
-      lspServerStarter.ensureServerStarted(new RustAnalyzerLspServerDescriptor(project));
+      clientStarter.ensureClientStarted(new RustAnalyzerLspServerDescriptor(project));
     }
   }
 
-  private static class RustAnalyzerLspServerDescriptor extends ProjectWideLspServerDescriptor {
+  private static class RustAnalyzerLspServerDescriptor extends ProjectWideLspClientDescriptor {
     public RustAnalyzerLspServerDescriptor(@NotNull Project project) {
       super(project, "rust-analyzer");
     }
