@@ -1,7 +1,6 @@
 package com.chriscarini.jetbrains.rustanalyzerlspintellijplugin;
 
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.extensions.PluginId;
@@ -47,16 +46,11 @@ class RustAnalyzerLspServerSupportProvider implements LspIntegrationProvider {
 
   private static boolean isJBRustPluginEnabled() {
     final PluginId jbRustPluginId = PluginId.getId("com.jetbrains.rust");
-    boolean jbRustPluginInstalled = PluginManager.isPluginInstalled(jbRustPluginId);
-    final IdeaPluginDescriptor jbRustPlugin = PluginManagerCore.getPlugin(jbRustPluginId);
-
-    if (jbRustPlugin == null) {
+    if (!PluginManager.isPluginInstalled(jbRustPluginId)) {
       return false;
     }
-
-    boolean jbRustPluginLoaded = PluginManagerCore.isLoaded(jbRustPlugin.getPluginId());
-    boolean jbRustPluginEnabled = !PluginManagerCore.isDisabled(jbRustPlugin.getPluginId());
-
-    return jbRustPluginInstalled && jbRustPluginLoaded && jbRustPluginEnabled;
+    boolean jbRustPluginLoaded = PluginManagerCore.isLoaded(jbRustPluginId);
+    boolean jbRustPluginEnabled = !PluginManagerCore.isDisabled(jbRustPluginId);
+    return jbRustPluginLoaded && jbRustPluginEnabled;
   }
 }
