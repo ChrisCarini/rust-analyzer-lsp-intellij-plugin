@@ -4,13 +4,51 @@
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [1.1.2] - 2026-08-11
+
+### Changed
+
+- Upgrading IntelliJ from 2026.2.0.1 to 2026.2.1
+
+## [1.1.1] - 2026-08-06
+
+### Changed
+
+- Upgrading IntelliJ from 2026.2 to 2026.2.0.1
+
+## [1.1.0] - 2026-07-17
+
+### Changed
+
+- Upgrading IntelliJ from 2026.1.4 to 2026.2
+
+## [1.0.4] - 2026-07-04
+
+### Changed
+
+- Upgrading IntelliJ from 2026.1.3 to 2026.1.4
+
+## [1.0.3] - 2026-06-06
+
+### Changed
+
+- Upgrading IntelliJ from 2026.1.2 to 2026.1.3
+
 ## [1.0.2] - 2026-05-16
 
 ### Changed
-- Upgrading IntelliJ from 2026.2.0.1 to 2026.2.1
-- Upgrading IntelliJ from 2026.2 to 2026.2.0.1
-- Upgrading IntelliJ from 2026.1.4 to 2026.2
-- Upgrading IntelliJ from 2026.1.2 to 2026.1.3
 
 - Upgrading IntelliJ from 2026.1.1 to 2026.1.2
 
@@ -25,6 +63,11 @@
 ### Changed
 
 - Upgrading IntelliJ from 2025.3.4 to 2026.1
+
+## [0.2.5] - 2026-03-20
+
+### Changed
+
 - Upgrading IntelliJ from 2025.3.3 to 2025.3.4
 
 ## [0.2.4] - 2026-02-20
@@ -62,6 +105,11 @@
 ### Changed
 
 - Upgrading IntelliJ from 2025.2.4 to 2025.2.5
+
+## [0.1.4] - 2025-10-28
+
+### Changed
+
 - Upgrading IntelliJ from 2025.2.3 to 2025.2.4
 
 ## [0.1.3] - 2025-10-03
@@ -88,7 +136,13 @@
 
 - Upgrading IntelliJ from 2025.1.4.1 to 2025.2
 
-## [0.0.2] - 2025-07-06
+## [0.0.2] - 2025-08-05
+
+### Changed
+
+- Upgrading IntelliJ from 2025.1.3 to 2025.1.4.1
+
+## [0.0.1] - 2025-07-06
 
 ### Added
 
@@ -99,25 +153,26 @@
 - Upgrading IntelliJ from 2025.1.1 to 2025.1.2
 - Upgrading IntelliJ from 2025.1 to 2025.1.1
 
-## [0.0.3] - 2025-07-06
-
-### Changed
-
-- Upgrading IntelliJ from 2025.1.2 to 2025.1.3
-
-[Unreleased]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/1.0.2...HEAD
-[1.0.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.2.4...1.0.0
-[0.2.4]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.2.3...0.2.4
-[0.2.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.2.2...0.2.3
-[0.2.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.2.1...0.2.2
-[0.2.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.2.0...0.2.1
-[0.2.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.1.5...0.2.0
-[0.1.5]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.1.3...0.1.5
-[0.1.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.1.2...0.1.3
-[0.1.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.1.1...0.1.2
-[0.1.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.1.0...0.1.1
-[0.1.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.0.2...0.1.0
-[0.0.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/commits/0.0.3
-[0.0.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/0.0.3...0.0.2
+[Unreleased]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.2.5...v1.0.0
+[0.2.5]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.2.4...v0.2.5
+[0.2.4]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.5...v0.2.0
+[0.1.5]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.0.2...v0.1.0
+[0.0.2]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/ChrisCarini/rust-analyzer-lsp-intellij-plugin/commits/v0.0.1
